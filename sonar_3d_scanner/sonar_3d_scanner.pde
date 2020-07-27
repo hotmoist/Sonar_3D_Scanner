@@ -86,11 +86,13 @@ void draw() {
       // angle += 1;
 
       if (list.size() % 200 == 0) {
-        // t_case = 1;
         y -= h;
       }
 
-      if (distance > 500) { //end condition
+      if (distance > 50) { 
+        //when there is nothing to scan or either scan is finished
+        //end condition
+        
         t_case = 1;
       }
       
