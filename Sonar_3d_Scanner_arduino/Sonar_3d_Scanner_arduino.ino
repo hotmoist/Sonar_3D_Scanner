@@ -11,7 +11,6 @@ float angle = 0;
 float distance = 0;
 float height = 0;
 
-boolean flag = false;
 
 void setup() {
   Serial.begin(9600);
@@ -34,26 +33,19 @@ void loop() {
 
   float distance = ((float)(340 * duration) / 10000) / 2;
 
+  Serial.println(distance);
+  Serial.println((angle));
+  Serial.println(height);
+  
   // move table 1.8 degree
   stepper1.step(1, FORWARD, SINGLE);
-  angle += 1.8;``
+  angle += 1.8;
 
   if (fmod(angle, (float)360) == 0) {
     stepper2.step(1, FORWARD, SINGLE);
     height += 1.8;
-    flag = true;
-  } else {
-    flag = false;
   }
+  
+  delay(1000);
 
-  Serial.println(distance);
-  Serial.println((angle - 1.8));
-
-  if (flag) {
-    Serial.println( (height - 1.8));
-  } else {
-    Serial.println(height);
-
-    delay(1000);
-  }
 }
