@@ -6,6 +6,8 @@ Serial port;
 ArrayList<Dots> list = new ArrayList<Dots>();
 int t_case = 0;
 
+int test = 0;
+
 String val;
 float[] serialVal = new float[3];
 int serialCount = 0;
