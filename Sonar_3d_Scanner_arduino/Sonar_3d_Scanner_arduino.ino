@@ -42,7 +42,7 @@ void loop() {
   angle += 1.8;
 
   if (fmod(angle, (float)360) == 0) {
-    stepper2.step(1, FORWARD, SINGLE);
+    stepper2.step(1, BACKWARD, SINGLE);
     height += 1.8;
   }
   
