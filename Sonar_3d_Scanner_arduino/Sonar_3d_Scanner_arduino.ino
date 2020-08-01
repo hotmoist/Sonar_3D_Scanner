@@ -1,5 +1,4 @@
 #include <AFMotor.h>
-#include <math.h>
 
 AF_Stepper stepper1(200, 1);
 AF_Stepper stepper2(200, 2);
