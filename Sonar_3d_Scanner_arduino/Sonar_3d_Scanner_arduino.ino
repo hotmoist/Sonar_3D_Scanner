@@ -42,8 +42,8 @@ void loop() {
   count++;
   
   if(count%200 == 0){ //360 = 1.8*200
-    stepper2.step(1, BACKWARD, SINGLE);
-    height += 1.8;
+    stepper2.step(1, BACKWARD, SINGLE);//1.8도에 0.07cm
+    height += 0.07;
   }
  
   delay(1000);
