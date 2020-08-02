@@ -1,6 +1,11 @@
 import java.util.*;
 import processing.serial.*;
 
+// actual height rises 0.07cm per 360 degree turn
+// one step table turn is 1.8 degree (radian(1.8))
+// closest distance between table and sensor is near 7 cm 
+
+
 Serial port;
 
 ArrayList<Dots> list = new ArrayList<Dots>();
@@ -14,7 +19,7 @@ float angle = 0;
 float distance = 0;
 float h = 0;
 
-float distance_center = 10; //distance of sensor~~center
+final float DISTANCE_CENTER = 11; //distance of sensor~~center
 
 float x = 0;
 float y = 0;
@@ -31,10 +36,10 @@ void draw() {
   translate(500, 500);
   background(0);
   stroke(255);
-  noFill();
+  fill(0, 255, 0);
 
   // draw line for center coordinate plane
-  
+
   line(0, -500, 0, 0, 500, 0);
   line(-500, 0, 0, 500, 0, 0);
   line(0, 0, 500, 0, 0, -500);
@@ -43,84 +48,103 @@ void draw() {
   text("(500, 0, 0)", 430, 15, 0);
   text("(-500, 0, 0)", -500, 15, 0);
 
- // translate for dot producing 
- // translate(0, 500);
+  if (t_case == 0) {
+
+    /*
+     * case 0 codes
+     * this code is for to make boxes of measured points.
+     *  
+     */
 
 
-  if (port.available() > 0) {    // serial communication with arduino
-    // three variable will be sended : distance, angle, height
-    val = port.readStringUntil('\n');
+    if (port.available() > 0) {    // serial communication with arduino
 
-    if (serialCount < 3 && val != null) {
-      serialVal[serialCount] = Float.parseFloat(val);
-      serialCount++;
+      // three variable will be sended : distance, angle, height
+
+      val = port.readStringUntil('\n');
+
+      if (serialCount < 3 && val != null) {
+        serialVal[serialCount] = Float.parseFloat(val);
+        serialCount++;
+      }
+
+      if (serialCount == 3) {
+        distance = serialVal[0];
+        angle =serialVal[1];
+        h = serialVal[2];
+
+        println("distance : " + distance + " angle : " + angle + " height : " + h);
+
+        serialCount = 0;
+      }
     }
 
-    if (serialCount == 3) {
-      distance = serialVal[0];
-      angle =serialVal[1];
-      h = serialVal[2];
+    /****** noise deleting code*****/
+    // noise deleting code
+    // need more idea
 
-      println("distance : " + distance + " angle : " + angle + " height : " + h);
 
-      serialCount = 0;
+    if (distance % 1 < 0.5) {
+
+      distance = (distance / 1);
+    } else if (distance % 1 >= 0.5) {
+
+      distance = (distance / 1) + 0.5;
     }
 
-    x = (distance_center - distance) * 10;
-    y = h;
+    float dist =(DISTANCE_CENTER - distance) * 10;
 
-    if (t_case == 0) {
-      
-      /*
-       * case 0 codes
-       * this code is for to make boxes of measured points.
-       *  
-       */
-      
-      list.add(new Dots(x, y, z, 180));
+    if (h == 1000 ) { 
+      //when there is nothing to scan or either scan is finished
+      //end condition
+      // arduino will send info as angle = 0, distance = 0, height = 1000
+
+      t_case = 1;
+    }
+
+    if ( dist > 0) {
+
+      x = dist*cos(radians(angle));
+      y = h;
+      z= dist*sin(radians(angle));
+
+      list.add(new Dots(x, y, z));
 
       for (int i = 0; i < list.size(); i++) {
         list.get(i).draw_dot();
-        list.get(i).dot_angle += 1.8;
       }
 
-      // angle += 1;
+      delay(1);
+    } else {
 
-      if (list.size() % 200 == 0) {
-        y -= h;
-      }
-
-      if (distance > 50) { 
-        //when there is nothing to scan or either scan is finished
-        //end condition
-        
-        t_case = 1;
-      }
-      
-      delay(100);
-      
-    }
-
-    if (t_case == 1) {
-      /*
-       * case 1 codes
-       * this codes is for rendering all the points to make scanned object look smoother.
-       * it is like anti-aliasing
-       */
-      
-      
-      // beginShape(TRIANGLE_STRIP);
       for (int i = 0; i < list.size(); i++) {
-        //  beginShape(TRIANGLE_STRIP);
-
-        //  vertex(list.get(i).x*t, list.get(i).y*t, list.get(i).z*t);
-        // vertex(list.get(i).x*t, list.get(i).y*t, (list.get(i).z+1)*t);
 
         list.get(i).draw_dot();
       }
-      // endShape();
-
-      camera(mouseX*2, 0, mouseY*2, 500, 500, 0, 100, 100, 100 );
     }
+
+    delay(1);
+  }
+
+  if (t_case == 1) {
+    /*
+     * case 1 codes
+     * this codes is for rendering all the points to make scanned object look smoother.
+     * it is like anti-aliasing
+     */
+
+
+    // beginShape(TRIANGLE_STRIP);
+    for (int i = 0; i < list.size(); i++) {
+      //  beginShape(TRIANGLE_STRIP);
+
+      //  vertex(list.get(i).x*t, list.get(i).y*t, list.get(i).z*t);
+      // vertex(list.get(i).x*t, list.get(i).y*t, (list.get(i).z+1)*t);
+
+      list.get(i).draw_dot();
+    }
+    // endShape();
+
+    camera(mouseX*2, 0, mouseY*2, 500, 500, 0, 100, 100, 100 );
   }
 }
