@@ -36,7 +36,6 @@ void loop() {
   unsigned long duration = pulseIn(echoPin, HIGH);
 
   float distance = ((float)(340 * duration) / 10000) / 2;
-  
   flag++;
   if (flag > 2) {
     Serial.println(distance);
