@@ -1,9 +1,8 @@
+
 #include <AFMotor.h>
 
 AF_Stepper stepper1(200, 1);
 AF_Stepper stepper2(200, 2);
-
-int ex;
 
 int echoPin = 10;
 int trigPin = 13;
@@ -41,14 +40,14 @@ void loop() {
     Serial.println(distance);
     Serial.println(angle);
     Serial.println(height);
-    Serial.println(TF);
+ //   Serial.println(TF);
 
     // move table 1.8 degree
     stepper1.step(1, FORWARD, SINGLE);
     angle += 1.8;
     count++;
 
-    if (distance < 50) {
+    if (distance < 17) {
       TF++;
     }
 
@@ -56,6 +55,7 @@ void loop() {
       if (TF > 0) {
         stepper2.step(1, BACKWARD, SINGLE);
         height += 0.07;
+        TF = 0;
       }
       else {
         //Serial.println("end");
@@ -66,6 +66,6 @@ void loop() {
       }
     }
   }
-  delay(250);
+  delay(100);
 
 }
