@@ -3,6 +3,8 @@
 AF_Stepper stepper1(200, 1);
 AF_Stepper stepper2(200, 2);
 
+int ex;
+
 int echoPin = 10;
 int trigPin = 13;
 
