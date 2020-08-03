@@ -16,5 +16,6 @@ class Dots {
     fill(0, 255, 0);
     box(2);
     popMatrix();
+    
   }
 }
