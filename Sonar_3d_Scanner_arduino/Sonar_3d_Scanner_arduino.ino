@@ -1,8 +1,14 @@
-
+#include <Kalman.h>
 #include <AFMotor.h>
+
+
+int END_DISTANCE = 15;
 
 AF_Stepper stepper1(200, 1);
 AF_Stepper stepper2(200, 2);
+
+double filteredDistance;
+Kalman myFilter(0.125, 32, 1023, 0);
 
 int echoPin = 10;
 int trigPin = 13;
@@ -25,29 +31,46 @@ void setup() {
 
 void loop() {
 
-  digitalWrite(trigPin, LOW);
-  digitalWrite(echoPin, LOW);
-  delayMicroseconds(2);
-  digitalWrite(trigPin, HIGH);
-  delayMicroseconds(10);
-  digitalWrite(trigPin, LOW);
+  for (int i = 0; i < 100; i++) {
+    
+    digitalWrite(trigPin, LOW);
+    digitalWrite(echoPin, LOW);
+    delayMicroseconds(2);
+    digitalWrite(trigPin, HIGH);
+    delayMicroseconds(10);
+    digitalWrite(trigPin, LOW);
 
-  unsigned long duration = pulseIn(echoPin, HIGH);
+    unsigned long duration = pulseIn(echoPin, HIGH);
+    
+    double distance = ((double)(340 * duration) / 10000) / 2;
 
-  float distance = ((float)(340 * duration) / 10000) / 2;
+    filteredDistance = myFilter.getFilteredValue(distance);
+/*
+    Serial.print(distance);
+    Serial.print(",");
+    Serial.println(filteredDistance);
+    */
+    delay(10);
+  }
+
   flag++;
   if (flag > 2) {
-    Serial.println(distance);
+    
+  
+    
+    
+    
+    Serial.println(filteredDistance);
     Serial.println(angle);
     Serial.println(height);
- //   Serial.println(TF);
+    //   Serial.println(TF);
 
     // move table 1.8 degree
     stepper1.step(1, FORWARD, SINGLE);
     angle += 1.8;
     count++;
 
-    if (distance < 17) {
+    if (filteredDistance < END_DISTANCE) {
       TF++;
     }
 

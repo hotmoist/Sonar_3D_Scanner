@@ -19,6 +19,10 @@ float angle = 0;
 float distance = 0;
 float h = 0;
 
+// debug
+int count = 0;
+
+
 final float DISTANCE_CENTER = 11; //distance of sensor~~center
 
 float x = 0;
@@ -76,23 +80,32 @@ void draw() {
         println("distance : " + distance + " angle : " + angle + " height : " + h);
 
         serialCount = 0;
+        
+        count++;
       }
     }
 
     /****** noise deleting code*****/
     // noise deleting code
     // need more idea
+    //if (distance % 1 < 0.5) {
 
+    //  distance = (distance / 1);
+    //} else if (distance % 1 >= 0.5) {
 
-    if (distance % 1 < 0.5) {
+    //  distance = (distance / 1) + 0.5;
+    //}
 
-      distance = (distance / 1);
-    } else if (distance % 1 >= 0.5) {
+    /******************************/
 
-      distance = (distance / 1) + 0.5;
+    float dist =(DISTANCE_CENTER - distance) *50;
+
+    /***** scan test code******/
+    //--------------------------
+    if (count == 200) {
+      t_case = 1;
     }
-
-    float dist =(DISTANCE_CENTER - distance) * 10;
+    //---------------------------
 
     if (h == 1000 ) { 
       //when there is nothing to scan or either scan is finished
@@ -124,6 +137,8 @@ void draw() {
     }
 
     delay(1);
+
+    
   }
 
   if (t_case == 1) {
