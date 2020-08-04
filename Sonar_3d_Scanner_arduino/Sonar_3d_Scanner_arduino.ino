@@ -8,7 +8,7 @@ AF_Stepper stepper1(200, 1);
 AF_Stepper stepper2(200, 2);
 
 double filteredDistance;
-Kalman myFilter(0.125, 32, 1023, 0);
+Kalman myFilter(0.1, 32, 1023, 0);
 
 int echoPin = 10;
 int trigPin = 13;
@@ -30,9 +30,8 @@ void setup() {
 }
 
 void loop() {
-
-  for (int i = 0; i < 100; i++) {
-    
+ delay(10);
+  
     digitalWrite(trigPin, LOW);
     digitalWrite(echoPin, LOW);
     delayMicroseconds(2);
@@ -41,54 +40,49 @@ void loop() {
     digitalWrite(trigPin, LOW);
 
     unsigned long duration = pulseIn(echoPin, HIGH);
-    
+
     double distance = ((double)(340 * duration) / 10000) / 2;
-
+    
     filteredDistance = myFilter.getFilteredValue(distance);
-/*
-    Serial.print(distance);
-    Serial.print(",");
-    Serial.println(filteredDistance);
-    */
+    flag++;
+
     delay(10);
-  }
-
-  flag++;
-  if (flag > 2) {
-    
   
-    
-    
-    
-    Serial.println(filteredDistance);
-    Serial.println(angle);
-    Serial.println(height);
-    //   Serial.println(TF);
+if(flag > 5){
 
-    // move table 1.8 degree
-    stepper1.step(1, FORWARD, SINGLE);
-    angle += 1.8;
-    count++;
+/*
+  Serial.print(distance);
+  Serial.print(",");
+  */
+  Serial.println(filteredDistance);
+  Serial.println(angle);
+  Serial.println(height);
+  //   Serial.println(TF);
 
-    if (filteredDistance < END_DISTANCE) {
-      TF++;
+  // move table 1.8 degree
+  stepper1.step(1, FORWARD, SINGLE);
+  angle += 1.8;
+  count++;
+
+  if (filteredDistance < END_DISTANCE) {
+    TF++;
+  }
+
+  if (count % 200 == 0) { //360 = 1.8*200
+    if (TF > 0) {
+      stepper2.step(1, BACKWARD, SINGLE);
+      height += 0.07;
+      TF = 0;
     }
-
-    if (count % 200 == 0) { //360 = 1.8*200
-      if (TF > 0) {
-        stepper2.step(1, BACKWARD, SINGLE);
-        height += 0.07;
-        TF = 0;
-      }
-      else {
-        //Serial.println("end");
-        Serial.println(0); //거리
-        Serial.println(0); //각도
-        Serial.println(1000);//높이
-        while (true);
-      }
+    else {
+      //Serial.println("end");
+      Serial.println(0); //거리
+      Serial.println(0); //각도
+      Serial.println(1000);//높이
+      while (true);
     }
   }
-  delay(100);
 
+  delay(10);
+}
 }
