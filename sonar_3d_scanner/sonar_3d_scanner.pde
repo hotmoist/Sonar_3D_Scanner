@@ -23,7 +23,7 @@ float h = 0;
 int count = 0;
 
 
-final float DISTANCE_CENTER = 11; //distance of sensor~~center
+final float DISTANCE_CENTER = 10; //distance of sensor~~center
 
 float x = 0;
 float y = 0;
@@ -68,7 +68,21 @@ void draw() {
       val = port.readStringUntil('\n');
 
       if (serialCount < 3 && val != null) {
+        
+        
+        /*
+        if(serialCount == 0 && val.charAt(0) == '?'){
+          val = val.substring(1);
+         
+        }
+        */
+        
+        try{
         serialVal[serialCount] = Float.parseFloat(val);
+        } catch(NumberFormatException e){
+          val = val.substring(1);
+          serialVal[serialCount] = Float.parseFloat(val);
+        }
         serialCount++;
       }
 
@@ -102,7 +116,7 @@ void draw() {
 
     /***** scan test code******/
     //--------------------------
-    if (count == 200) {
+    if (count == 2000) {
       t_case = 1;
     }
     //---------------------------
@@ -118,7 +132,7 @@ void draw() {
     if ( dist > 0) {
 
       x = dist*cos(radians(angle));
-      y = h;
+      y = h * -50;
       z= dist*sin(radians(angle));
 
       list.add(new Dots(x, y, z));

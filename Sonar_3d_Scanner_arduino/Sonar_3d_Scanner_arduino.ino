@@ -30,59 +30,68 @@ void setup() {
 }
 
 void loop() {
- delay(10);
-  
-    digitalWrite(trigPin, LOW);
-    digitalWrite(echoPin, LOW);
-    delayMicroseconds(2);
-    digitalWrite(trigPin, HIGH);
-    delayMicroseconds(10);
-    digitalWrite(trigPin, LOW);
 
-    unsigned long duration = pulseIn(echoPin, HIGH);
+  delay(50);
 
-    double distance = ((double)(340 * duration) / 10000) / 2;
-    
-    filteredDistance = myFilter.getFilteredValue(distance);
-    flag++;
+  digitalWrite(trigPin, LOW);
+  digitalWrite(echoPin, LOW);
+  delayMicroseconds(2);
+  digitalWrite(trigPin, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(trigPin, LOW);
 
-    delay(10);
-  
-if(flag > 5){
+  unsigned long duration = pulseIn(echoPin, HIGH);
 
-/*
-  Serial.print(distance);
-  Serial.print(",");
-  */
-  Serial.println(filteredDistance);
-  Serial.println(angle);
-  Serial.println(height);
-  //   Serial.println(TF);
-
-  // move table 1.8 degree
-  stepper1.step(1, FORWARD, SINGLE);
-  angle += 1.8;
-  count++;
-
-  if (filteredDistance < END_DISTANCE) {
-    TF++;
-  }
-
-  if (count % 200 == 0) { //360 = 1.8*200
-    if (TF > 0) {
-      stepper2.step(1, BACKWARD, SINGLE);
-      height += 0.07;
-      TF = 0;
-    }
-    else {
-      //Serial.println("end");
-      Serial.println(0); //거리
-      Serial.println(0); //각도
-      Serial.println(1000);//높이
-      while (true);
-    }
-  }
+  double distance = ((double)(340 * duration) / 10000) / 2;
 
   delay(10);
-}
+
+  filteredDistance = myFilter.getFilteredValue(distance);
+
+  flag++;
+
+  if (flag <= 5) {
+    stepper2.step(1, BACKWARD, SINGLE);
+  }
+
+
+
+
+  if (flag > 50) {
+
+    /*
+      Serial.print(distance);
+      Serial.print(",");
+    */
+    Serial.println(filteredDistance);
+    Serial.println(angle);
+    Serial.println(height);
+    //   Serial.println(TF);
+
+    // move table 1.8 degree
+    stepper1.step(1, FORWARD, SINGLE);
+    angle += 1.8;
+    count++;
+
+    if (filteredDistance < END_DISTANCE) {
+      TF++;
+    }
+
+    if (count % 200 == 0) { //360 = 1.8*200
+      if (TF > 0) {
+        stepper2.step(1, BACKWARD, SINGLE);
+        height += 0.07;
+        TF = 0;
+      }
+      else {
+        //Serial.println("end");
+        Serial.println(0); //거리
+        Serial.println(0); //각도
+        Serial.println(1000);//높이
+        while (true);
+      }
+    }
+
+    delay(10);
+  }
 }
