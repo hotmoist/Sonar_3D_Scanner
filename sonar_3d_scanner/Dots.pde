@@ -14,7 +14,7 @@ class Dots {
     translate(x, y, z);
     noStroke();
     fill(0, 255, 0);
-    box(10);
+    box(4);
     popMatrix();
     
   }
