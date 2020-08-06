@@ -4,7 +4,7 @@
 
 int END_DISTANCE = 15;
 
-AF_Stepper stepper1(200, 1);
+AF_Stepper stepper1(100, 1);
 AF_Stepper stepper2(200, 2);
 
 double filteredDistance;
@@ -83,7 +83,7 @@ void loop() {
         height += 0.07;
         TF = 0;
       }
-      else {
+      else if(height >= 5.8 || TF <= 0){
         //Serial.println("end");
         Serial.println(0); //거리
         Serial.println(0); //각도
