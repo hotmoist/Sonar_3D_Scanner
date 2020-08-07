@@ -14,11 +14,16 @@ int echoPin = 10;
 int trigPin = 13;
 
 float angle = 0;
-float distance = 0;
+//float distance = 0;
 float height = 0;
 unsigned long count = 0;
+
 int TF = 0;
 int flag = 0;
+int flag2 = 0;
+
+// 상태
+char state = 'f';
 
 void setup() {
   Serial.begin(9600);
@@ -30,8 +35,9 @@ void setup() {
 }
 
 void loop() {
+  // Serial.println(state);
 
-  delay(50);
+  delay(10);
 
   digitalWrite(trigPin, LOW);
   digitalWrite(echoPin, LOW);
@@ -44,54 +50,118 @@ void loop() {
 
   double distance = ((double)(340 * duration) / 10000) / 2;
 
-  delay(10);
+  if ((int)distance == 0) {
+    // 거리 측정에 오류가 있는 경우 예외처리
+    // 고민이 더 필요한 해봐야하는 코드
+    distance = 100;
+  }
 
-  filteredDistance = myFilter.getFilteredValue(distance);
+  if (distance > 100) {
+    distance = 100;
+  }
 
-  flag++;
+  if (state == 'f') {
 
-  if (flag <= 5) {
-    stepper2.step(1, BACKWARD, SINGLE);
+    flag2++;
+
+
+    if ( flag2 > 4) {
+      //  Serial.println(distance);
+      if (distance > 15) {
+        stepper2.step(1, FORWARD, SINGLE);
+        Serial.println(0);
+      } else {
+        Serial.println(0);
+        state = '0';
+        flag2 = 0;
+      }
+    }
   }
 
 
+  if (state == '0') {
+    // state == '0'인 경우 아두이노의 초음파 센서 조정
+    // 원판을 인식하는 경우 모터를 한바퀴 (0.07cm)만큼 올림
+    // 더 이상 원판을 인식 하지 않을때 까지 모터가 돌아감
+    flag2++;
 
-
-  if (flag > 50) {
-
-    /*
-      Serial.print(distance);
-      Serial.print(",");
-    */
-    Serial.println(filteredDistance);
-    Serial.println(angle);
-    Serial.println(height);
-    //   Serial.println(TF);
-
-    // move table 1.8 degree
-    stepper1.step(1, FORWARD, SINGLE);
-    angle += 1.8;
-    count++;
-
-    if (filteredDistance < END_DISTANCE) {
-      TF++;
-    }
-
-    if (count % 200 == 0) { //360 = 1.8*200
-      if (TF > 0) {
+    if (flag2 > 4) {
+      //   Serial.println(distance);
+      if (distance < 15) {
+        // 원판을 인식하는 경우
+        // 원판을 인식하였으므로 processing에 0을 전달함
         stepper2.step(1, BACKWARD, SINGLE);
-        height += 0.07;
-        TF = 0;
-      }
-      else if(height >= 5.8 || TF <= 0){
-        //Serial.println("end");
-        Serial.println(0); //거리
-        Serial.println(0); //각도
-        Serial.println(1000);//높이
-        while (true);
+
+        Serial.println(0);
+
+      }  else {
+        // 원판을 더이상 인식하지 않는 경우
+        // 원판이 더이상 인식하지 않으므로 processing에 1을 전달함
+        Serial.println(1);
+        state = '1';
+        flag2 = 0;
       }
     }
-
-    delay(10);
   }
+
+  if (state == '1') {
+    // start scanning 버튼의 입력을 기다리는 상태
+    // processing 에서 시리얼 통신을 통해 값을 받는다.
+    // state의 값이 변경된다. 값이 '2'가 되는 경우 스캔
+    if (Serial.available() > 0) {
+      state = Serial.read();
+    }
+  }
+
+  if (state == '2' && distance <= 100 ) {
+   
+    delay(10);
+    // 카르만 필터를 이용하여 노이즈 제거
+
+    filteredDistance = myFilter.getFilteredValue(distance);
+
+    flag++;
+
+    if (flag > 50) {
+      Serial.println(filteredDistance);
+      Serial.println(angle);
+      Serial.println(height);
+      Serial.println(distance);
+
+      // 원판 모터를 1 스텝마다 1.8도 돌아간다.
+      stepper1.step(1, FORWARD, SINGLE);
+      angle += 1.8;
+      count++;
+
+      if (filteredDistance < END_DISTANCE) {
+        TF++;
+      }
+
+      if (count % 200 == 0) { //360 = 1.8*200
+        if (TF > 0) {
+          stepper2.step(1, BACKWARD, SINGLE);
+          height += 0.07;
+          TF = 0;
+        }
+        else if (height >= 5.8 || TF <= 0) {
+          // 최대 높이에 도달하거나 더이상 스캔할 물체가 탐지 되지 않는 경우 종료
+          // 종료 조건으로 processing에 0,0,1000 을 전달한다.
+
+          Serial.println(0); //거리
+          Serial.println(0); //각도
+          Serial.println(1000);//높이
+
+          while (true); // 더이상 진행을 멈추기 위한 코드
+        }
+      }
+
+      delay(10);
+    }
+
+    if(Serial.available() >0){
+      state = Serial.read();
+    }
+  }
+
+  delay(50);
 }

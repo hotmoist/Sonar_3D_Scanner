@@ -13,13 +13,13 @@ int t_case = 0;
 
 
 String val;
-float[] serialVal = new float[3];
+float[] serialVal = new float[4];
 int serialCount = 0;
 float angle = 0;
 float distance = 0;
 float h = 0;
 
-// debug
+// scan debug
 int count = 0;
 
 
@@ -29,104 +29,164 @@ float x = 0;
 float y = 0;
 float z = 0;
 
+// buttons
+Button start;
+Button pause;
+Button view;
+
+// adjust confirmation boolean value
+boolean adjust = false;
+
 void setup() {
   size(1000, 1000, P3D);
   background(0);
   printArray(Serial.list());
   port = new Serial(this, Serial.list()[0], 9600);
+
+  start = new Button("start scanning");
+  pause = new Button("pause scanning");
+  view  = new Button("view object");
 }
 
+
 void draw() {
-  translate(500, 500);
+  // debug
+  // println(t_case);
+
+  translate(500, 800);
   background(0);
   stroke(255);
   fill(0, 255, 0);
 
   // draw line for center coordinate plane
-
-  line(0, -500, 0, 0, 500, 0);
+  line(0, -800, 0, 0, 200, 0);
   line(-500, 0, 0, 500, 0, 0);
   line(0, 0, 500, 0, 0, -500);
-  text("(0, -500, 0)", 0, -480, 0);
-  text("(0, 500, 0)", 0, 480, 0);
-  text("(500, 0, 0)", 430, 15, 0);
+  textSize(20);
+  text("(0, 800, 0)", 0, -780, 0);
+  text("(0, -200, 0)", 0, 180, 0);
+  text("(500, 0, 0)", 390, 15, 0);
   text("(-500, 0, 0)", -500, 15, 0);
 
+  if (t_case < 4) {
+    // t_case == 4 is for outlook of the scan 
+    // buttons will disapear when t_case = 4
+    start.creatButton(-480, -750);
+    pause.creatButton(-480, -700);
+    view.creatButton(-480, -650);
+    
+    textSize(20);
+    text("current height : " + h, 280, -780);
+  }
+  
   if (t_case == 0) {
+    // adjusting sonar scanning case
 
+    line(-200, -400, 0, 200, -400, 0);
+    line(-200, -300, 0, 200, -300, 0);
+    line(-200, -400, 0, -200, -300, 0);
+    line(200, -400, 0, 200, -300, 0);
+    textSize(30);
+    text("          ADJUSTING... \n"
+      + "PLEASE EMPTY THE PLATE", -190, -360);
+
+
+
+    if (port.available() > 0) {
+
+      val = port.readStringUntil('\n');
+
+      if (serialCount < 1 && val != null) {
+
+        //   println(val);
+        int t = 0;
+        try {
+          t = Integer.parseInt(val.substring(0, 1) + "");
+        } 
+        catch(NumberFormatException e) {
+        }
+
+
+        if ( t == 1) {
+          t_case = 1;
+        }
+      }
+    }
+  }
+
+  if ( t_case == 1) {
     /*
-     * case 0 codes
+     * case 1 codes
+     * this code is for button click code  
+     */
+    if (start.click()) {
+      t_case = 2;
+      port.write('2');
+    }
+
+    if (list.size() >0) {
+      for (int i = 0; i < list.size(); i++) {
+
+        list.get(i).draw_dot();
+      }
+
+      delay(1);
+    }
+  }
+
+
+  if (t_case == 2) {
+    /*
+     * case 2 codes
      * this code is for to make boxes of measured points.
      *  
      */
-
-
-    if (port.available() > 0) {    // serial communication with arduino
-
+    if (port.available() > 0) {    
+      // serial communication with arduino
       // three variable will be sended : distance, angle, height
 
       val = port.readStringUntil('\n');
 
-      if (serialCount < 3 && val != null) {
-        
-        
-        /*
-        if(serialCount == 0 && val.charAt(0) == '?'){
-          val = val.substring(1);
-         
-        }
-        */
-        
-        try{
-        serialVal[serialCount] = Float.parseFloat(val);
-        } catch(NumberFormatException e){
+      if (serialCount < 4 && val != null) {
+
+        try {
+          serialVal[serialCount] = Float.parseFloat(val);
+        } 
+        catch(NumberFormatException e) {
           val = val.substring(1);
           serialVal[serialCount] = Float.parseFloat(val);
         }
         serialCount++;
       }
 
-      if (serialCount == 3) {
+      if (serialCount == 4) {
         distance = serialVal[0];
         angle =serialVal[1];
         h = serialVal[2];
 
-        println("distance : " + distance + " angle : " + angle + " height : " + h);
+        println("filtered distance : " + distance + " angle : " + angle + " height : " + h
+          + " distance : " + serialVal[3]);
 
         serialCount = 0;
-        
+
         count++;
       }
     }
-
-    /****** noise deleting code*****/
-    // noise deleting code
-    // need more idea
-    //if (distance % 1 < 0.5) {
-
-    //  distance = (distance / 1);
-    //} else if (distance % 1 >= 0.5) {
-
-    //  distance = (distance / 1) + 0.5;
-    //}
-
-    /******************************/
 
     float dist =(DISTANCE_CENTER - distance) *50;
 
     /***** scan test code******/
     //--------------------------
-    if (count == 2000) {
-      t_case = 1;
+    if (count == 200) {
+      t_case = 3;
     }
     //---------------------------
 
-    if (h == 1000 ) { 
+    if ((int)h == 1000 ) { 
       //when there is nothing to scan or either scan is finished
       //end condition
       // arduino will send info as angle = 0, distance = 0, height = 1000
-
-      t_case = 1;
+      t_case = 3;
     }
 
     if ( dist > 0) {
@@ -152,27 +212,41 @@ void draw() {
 
     delay(1);
 
-    
+    if (pause.click()) {
+      t_case = 1;
+      port.write('1');
+    }
   }
 
-  if (t_case == 1) {
+  if (t_case == 3) {
     /*
-     * case 1 codes
+     * case 3 codes
      * this codes is for rendering all the points to make scanned object look smoother.
      * it is like anti-aliasing
      */
 
+    line(-200, -400, 0, 200, -400, 0);
+    line(-200, -300, 0, 200, -300, 0);
+    line(-200, -400, 0, -200, -300, 0);
+    line(200, -400, 0, 200, -300, 0);
+    textSize(50);
+    text("SCAN FINISHED", -186, -330);
 
-    // beginShape(TRIANGLE_STRIP);
+
     for (int i = 0; i < list.size(); i++) {
-      //  beginShape(TRIANGLE_STRIP);
-
-      //  vertex(list.get(i).x*t, list.get(i).y*t, list.get(i).z*t);
-      // vertex(list.get(i).x*t, list.get(i).y*t, (list.get(i).z+1)*t);
-
       list.get(i).draw_dot();
     }
-    // endShape();
+
+    if (view.click()) {
+      t_case = 4;
+    }
+  }
+
+  if (t_case == 4) {
+
+    for (int i = 0; i < list.size(); i++) {
+      list.get(i).draw_dot();
+    }
 
     camera(mouseX*2, 0, mouseY*2, 500, 500, 0, 100, 100, 100 );
   }
