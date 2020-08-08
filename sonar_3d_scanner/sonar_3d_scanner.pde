@@ -173,11 +173,11 @@ void draw() {
       }
     }
 
-    float dist =(DISTANCE_CENTER - distance) *50;
+    float dist =(DISTANCE_CENTER - distance) * 50;
 
     /***** scan test code******/
     //--------------------------
-    if (count == 200) {
+    if (count == 1000) {
       t_case = 3;
     }
     //---------------------------
@@ -232,7 +232,8 @@ void draw() {
     textSize(50);
     text("SCAN FINISHED", -186, -330);
 
-
+    port.write('1');
+    
     for (int i = 0; i < list.size(); i++) {
       list.get(i).draw_dot();
     }

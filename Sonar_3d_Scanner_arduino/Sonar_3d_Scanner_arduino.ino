@@ -8,7 +8,7 @@ AF_Stepper stepper1(100, 1);
 AF_Stepper stepper2(200, 2);
 
 double filteredDistance;
-Kalman myFilter(0.1, 32, 1023, 0);
+Kalman myFilter(0.125, 32, 1023, 0);
 
 int echoPin = 10;
 int trigPin = 13;
@@ -114,15 +114,18 @@ void loop() {
   }
 
   if (state == '2' && distance <= 100 ) {
-   
-    delay(10);
+
     // 카르만 필터를 이용하여 노이즈 제거
 
-    filteredDistance = myFilter.getFilteredValue(distance);
+    if (flag > 0) {
+      filteredDistance = myFilter.getFilteredValue(distance);
+    }
 
     flag++;
 
-    if (flag > 50) {
+
+    // 같은 위치를 10번 측정하여 필터링 된 값을 이용하여 스캔에 반영한다.
+    if (flag > 10) {
       Serial.println(filteredDistance);
       Serial.println(angle);
       Serial.println(height);
@@ -155,10 +158,11 @@ void loop() {
         }
       }
 
-      delay(10);
+      // 필터링 테스트
+      flag = 0;
     }
 
-    if(Serial.available() >0){
+    if (Serial.available() > 0) {
       state = Serial.read();
     }
   }
