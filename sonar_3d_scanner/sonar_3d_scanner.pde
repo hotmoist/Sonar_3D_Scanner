@@ -37,6 +37,11 @@ Button view;
 // adjust confirmation boolean value
 boolean adjust = false;
 
+//-----text file output code added--------
+PrintWriter output;
+//----------------------------------------
+
+
 void setup() {
   size(1000, 1000, P3D);
   background(0);
@@ -46,6 +51,10 @@ void setup() {
   start = new Button("start scanning");
   pause = new Button("pause scanning");
   view  = new Button("view object");
+
+  //--------text value---------------
+  output = createWriter("test.txt");
+  //---------------------------------
 }
 
 
@@ -74,11 +83,11 @@ void draw() {
     start.creatButton(-480, -750);
     pause.creatButton(-480, -700);
     view.creatButton(-480, -650);
-    
+
     textSize(20);
     text("current height : " + h, 280, -780);
   }
-  
+
   if (t_case == 0) {
     // adjusting sonar scanning case
 
@@ -167,6 +176,7 @@ void draw() {
         println("filtered distance : " + distance + " angle : " + angle + " height : " + h
           + " distance : " + serialVal[3]);
 
+
         serialCount = 0;
 
         count++;
@@ -195,6 +205,15 @@ void draw() {
       y = h * -50;
       z= dist*sin(radians(angle));
 
+      //-------text creating(x,y,z) code------------
+      // print point xyz value as x y z 
+      // x value = dist * sin(radians(angle), y value = dist * sin(radians(angle)), z = h(=height)
+      
+      output.println((dist*sin(radians(angle))) + " " + (dist * cos(radians(angle))) 
+        + " " + h );
+
+      //--------------------------------------------
+
       list.add(new Dots(x, y, z));
 
       for (int i = 0; i < list.size(); i++) {
@@ -221,9 +240,12 @@ void draw() {
   if (t_case == 3) {
     /*
      * case 3 codes
-     * this codes is for rendering all the points to make scanned object look smoother.
-     * it is like anti-aliasing
+     * case 3 activates when scan is finished
      */
+
+    //------text create code--------
+    textCreate();
+    //-----------------------------
 
     line(-200, -400, 0, 200, -400, 0);
     line(-200, -300, 0, 200, -300, 0);
@@ -233,7 +255,7 @@ void draw() {
     text("SCAN FINISHED", -186, -330);
 
     port.write('1');
-    
+
     for (int i = 0; i < list.size(); i++) {
       list.get(i).draw_dot();
     }
@@ -244,6 +266,11 @@ void draw() {
   }
 
   if (t_case == 4) {
+    /*
+     * case 4 codes
+     * case 4 activates when user want to view scanned object
+     * activates when "view object" button is operated
+     */
 
     for (int i = 0; i < list.size(); i++) {
       list.get(i).draw_dot();
@@ -251,4 +278,9 @@ void draw() {
 
     camera(mouseX*2, 0, mouseY*2, 500, 500, 0, 100, 100, 100 );
   }
+}
+
+void textCreate() {
+  output.flush();
+  output.close();
 }
