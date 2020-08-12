@@ -97,6 +97,7 @@ void loop() {
       }  else {
         // 원판을 더이상 인식하지 않는 경우
         // 원판이 더이상 인식하지 않으므로 processing에 1을 전달함
+        stepper2.step(1, BACKWARD, SINGLE);
         Serial.println(1);
         state = '1';
         flag2 = 0;
@@ -149,7 +150,7 @@ void loop() {
         else if (height >= 5.8 || TF <= 0) {
           // 최대 높이에 도달하거나 더이상 스캔할 물체가 탐지 되지 않는 경우 종료
           // 종료 조건으로 processing에 0,0,1000 을 전달한다.
-
+          
           Serial.println(0); //거리
           Serial.println(0); //각도
           Serial.println(1000);//높이

@@ -41,6 +41,7 @@ boolean adjust = false;
 PrintWriter output;
 //----------------------------------------
 
+boolean isValued; // check if all value is imported from arduino
 
 void setup() {
   size(1000, 1000, P3D);
@@ -76,6 +77,11 @@ void draw() {
   text("(0, -200, 0)", 0, 180, 0);
   text("(500, 0, 0)", 390, 15, 0);
   text("(-500, 0, 0)", -500, 15, 0);
+
+  //--------------
+  isValued = false;
+  //--------------
+
 
   if (t_case < 4) {
     // t_case == 4 is for outlook of the scan 
@@ -179,54 +185,57 @@ void draw() {
 
         serialCount = 0;
 
+        //-------------------
+        isValued = true;
+        //-------------------
+
         count++;
       }
-    }
 
-    float dist =(DISTANCE_CENTER - distance) * 50;
 
-    /***** scan test code******/
-    //--------------------------
-    if (count == 1000) {
-      t_case = 3;
-    }
-    //---------------------------
+      float dist =(DISTANCE_CENTER - distance) * 50;
 
-    if ((int)h == 1000 ) { 
-      //when there is nothing to scan or either scan is finished
-      //end condition
-      // arduino will send info as angle = 0, distance = 0, height = 1000
-      t_case = 3;
-    }
+      /***** scan test code******/
+      //--------------------------
+      if (count == 200) {
+        t_case = 3;
+      }
+      //---------------------------
 
-    if ( dist > 0) {
-
-      x = dist*cos(radians(angle));
-      y = h * -50;
-      z= dist*sin(radians(angle));
-
-      //-------text creating(x,y,z) code------------
-      // print point xyz value as x y z 
-      // x value = dist * sin(radians(angle), y value = dist * sin(radians(angle)), z = h(=height)
-      
-      output.println((dist*sin(radians(angle))) + " " + (dist * cos(radians(angle))) 
-        + " " + h );
-
-      //--------------------------------------------
-
-      list.add(new Dots(x, y, z));
-
-      for (int i = 0; i < list.size(); i++) {
-        list.get(i).draw_dot();
+      if ((int)h == 1000 ) { 
+        //when there is nothing to scan or either scan is finished
+        //end condition
+        // arduino will send info as angle = 0, distance = 0, height = 1000
+        t_case = 3;
       }
 
-      delay(1);
-    } else {
+      if ( dist > 0) {
 
-      for (int i = 0; i < list.size(); i++) {
+        x = dist*cos(radians(angle));
+        y = h * -50;
+        z= dist*sin(radians(angle));
 
-        list.get(i).draw_dot();
+        //-------text creating(x,y,z) code------------
+        // print point xyz value as x y z 
+        // x value = dist * sin(radians(angle), y value = dist * sin(radians(angle)), z = h(=height)
+        if (isValued && count >= 1) {
+          output.println((dist*sin(radians(angle))) + " " + (dist * cos(radians(angle))) 
+            + " " + h );
+          //output.flush();
+          list.add(new Dots(x, y, z)); 
       }
+        //--------------------------------------------
+        /*
+        if (isValued) {
+         list.add(new Dots(x, y, z));
+         }
+         */
+      }
+    }
+
+
+    for (int i = 0; i < list.size(); i++) {
+      list.get(i).draw_dot();
     }
 
     delay(1);
