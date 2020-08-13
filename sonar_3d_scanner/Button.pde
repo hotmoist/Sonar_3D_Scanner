@@ -30,7 +30,7 @@ class Button {
   }
 
 
-  void creatButton(int x, int y) {
+  void createButton(int x, int y) {
 
     this.x = x;
     this.y = y-5;
@@ -47,7 +47,7 @@ class Button {
     popMatrix();
   }
 
-  void creatButton() {
+  void createButton() {
 
     pushMatrix();
     stroke(0, 255, 0);
@@ -60,20 +60,16 @@ class Button {
   }
 
   private boolean onButton() {
-    
-  //  println("mouseX : " + mouseX + " mouseY : " + mouseY );
-    
+
+
     if (((mouseX-500) >= x && (mouseX-500) <= x+ w) && ((mouseY-800) >= y && (mouseY-800) <= y + h)) {
-    //  println("on button");
       return true;
     } else {
-   //   println("on background");
       return false;
     }
   }
 
   boolean click() {
-    //  creatButton();
 
     if (onButton() && mousePressed) {
       return true;

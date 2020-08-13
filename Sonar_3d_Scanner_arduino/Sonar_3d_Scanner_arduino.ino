@@ -14,7 +14,6 @@ int echoPin = 10;
 int trigPin = 13;
 
 float angle = 0;
-//float distance = 0;
 float height = 0;
 unsigned long count = 0;
 
@@ -37,8 +36,6 @@ void setup() {
 void loop() {
   // Serial.println(state);
 
-  delay(10);
-
   digitalWrite(trigPin, LOW);
   digitalWrite(echoPin, LOW);
   delayMicroseconds(2);
@@ -49,6 +46,12 @@ void loop() {
   unsigned long duration = pulseIn(echoPin, HIGH);
 
   double distance = ((double)(340 * duration) / 10000) / 2;
+
+  if(Serial.available()>0 &&(state == 'f' || state == '0' || state == '2')){
+    if(Serial.read() == 'e'){
+      state = '1';
+    }
+  }
 
   if ((int)distance == 0) {
     // 거리 측정에 오류가 있는 경우 예외처리
@@ -90,8 +93,8 @@ void loop() {
       if (distance < 15) {
         // 원판을 인식하는 경우
         // 원판을 인식하였으므로 processing에 0을 전달함
+        
         stepper2.step(1, BACKWARD, SINGLE);
-
         Serial.println(0);
 
       }  else {
@@ -131,7 +134,8 @@ void loop() {
       Serial.println(angle);
       Serial.println(height);
       Serial.println(distance);
-
+     
+      
       // 원판 모터를 1 스텝마다 1.8도 돌아간다.
       stepper1.step(1, FORWARD, SINGLE);
       angle += 1.8;
@@ -154,7 +158,8 @@ void loop() {
           Serial.println(0); //거리
           Serial.println(0); //각도
           Serial.println(1000);//높이
-
+          Serial.println(0);
+          
           while (true); // 더이상 진행을 멈추기 위한 코드
         }
       }
