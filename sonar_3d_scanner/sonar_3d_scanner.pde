@@ -33,6 +33,7 @@ float z = 0;
 Button start;
 Button pause;
 Button view;
+Button exit;
 
 // adjust confirmation boolean value
 boolean adjust = false;
@@ -52,6 +53,7 @@ void setup() {
   start = new Button("start scanning");
   pause = new Button("pause scanning");
   view  = new Button("view object");
+  exit = new Button("exit");
 
   //--------text value---------------
   output = createWriter("test.txt");
@@ -81,18 +83,27 @@ void draw() {
   //--------------
   isValued = false;
   //--------------
+  
+  
 
 
   if (t_case < 4) {
     // t_case == 4 is for outlook of the scan 
     // buttons will disapear when t_case = 4
-    start.creatButton(-480, -750);
-    pause.creatButton(-480, -700);
-    view.creatButton(-480, -650);
-
+    start.createButton(-480, -750);
+    pause.createButton(-480, -700);
+    view.createButton(-480, -650);
+    exit.createButton(-480, -600);
+    
     textSize(20);
     text("current height : " + h, 280, -780);
   }
+  
+  if(exit.click()){
+    port.write('e');
+    exit();
+  }
+  
 
   if (t_case == 0) {
     // adjusting sonar scanning case
@@ -197,11 +208,12 @@ void draw() {
 
       /***** scan test code******/
       //--------------------------
-      if (count == 200) {
+    /*
+      if (count == 250) {
         t_case = 3;
       }
       //---------------------------
-
+*/
       if ((int)h == 1000 ) { 
         //when there is nothing to scan or either scan is finished
         //end condition
