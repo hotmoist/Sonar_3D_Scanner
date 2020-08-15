@@ -47,12 +47,6 @@ void loop() {
 
   double distance = ((double)(340 * duration) / 10000) / 2;
 
-  if(Serial.available()>0 &&(state == 'f' || state == '0' || state == '2')){
-    if(Serial.read() == 'e'){
-      state = '1';
-    }
-  }
-
   if ((int)distance == 0) {
     // 거리 측정에 오류가 있는 경우 예외처리
     // 고민이 더 필요한 해봐야하는 코드

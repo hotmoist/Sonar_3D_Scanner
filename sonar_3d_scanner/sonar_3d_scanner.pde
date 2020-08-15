@@ -56,7 +56,7 @@ void setup() {
   exit = new Button("exit");
 
   //--------text value---------------
-  output = createWriter("test.txt");
+  output = createWriter("pointData.txt");
   //---------------------------------
 }
 
@@ -83,8 +83,8 @@ void draw() {
   //--------------
   isValued = false;
   //--------------
-  
-  
+
+
 
 
   if (t_case < 4) {
@@ -94,16 +94,19 @@ void draw() {
     pause.createButton(-480, -700);
     view.createButton(-480, -650);
     exit.createButton(-480, -600);
-    
+
     textSize(20);
     text("current height : " + h, 280, -780);
   }
-  
-  if(exit.click()){
+
+  if (exit.click()) {
+    // program exit button
+    // send arduino state value as 'e'
+    // arduino will stop it's function because their is no codes for 'e' state 
     port.write('e');
     exit();
   }
-  
+
 
   if (t_case == 0) {
     // adjusting sonar scanning case
@@ -124,7 +127,6 @@ void draw() {
 
       if (serialCount < 1 && val != null) {
 
-        //   println(val);
         int t = 0;
         try {
           t = Integer.parseInt(val.substring(0, 1) + "");
@@ -208,12 +210,12 @@ void draw() {
 
       /***** scan test code******/
       //--------------------------
-    /*
+      /*
       if (count == 250) {
-        t_case = 3;
-      }
-      //---------------------------
-*/
+       t_case = 3;
+       }
+       //---------------------------
+       */
       if ((int)h == 1000 ) { 
         //when there is nothing to scan or either scan is finished
         //end condition
@@ -233,15 +235,9 @@ void draw() {
         if (isValued && count >= 1) {
           output.println((dist*sin(radians(angle))) + " " + (dist * cos(radians(angle))) 
             + " " + h );
-          //output.flush();
-          list.add(new Dots(x, y, z)); 
-      }
-        //--------------------------------------------
-        /*
-        if (isValued) {
-         list.add(new Dots(x, y, z));
-         }
-         */
+        
+          list.add(new Dots(x, y, z));
+        }        
       }
     }
 
