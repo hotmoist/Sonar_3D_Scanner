@@ -1,6 +1,14 @@
 import java.util.*;
 import processing.serial.*;
 
+/*
+ * CNU Bottom-up project (2020)
+ * Sonar 3D scanner measurement visualization code 
+ * made by team Umpa-Umpa (hotmosit, hj-k66) 
+ */
+
+
+
 // actual height rises 0.07cm per 360 degree turn
 // one step table turn is 1.8 degree (radian(1.8))
 // closest distance between table and sensor is near 7 cm 
