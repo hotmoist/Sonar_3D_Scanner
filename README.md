@@ -4,4 +4,4 @@
 
 
 
-<img align ="center" src ="./image.png">
+<p align ="center"> <img src ="./image.png"></p>
