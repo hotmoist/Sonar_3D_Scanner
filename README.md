@@ -1,4 +1,4 @@
 ## 3D Object Scanner with Sonar sensor
 # CNU Bottom-up competition(2020) project
 ---
-![ex_screenshot][image.png]
+![ex_screenshot][./image.png]
